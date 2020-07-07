@@ -1,0 +1,33 @@
+---
+title: "Data cleaning and management"
+author: "Ziyi Zhao"
+date: "7/7/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+
+```
+
+# import datasets
+
+```{r importdata}
+country <- read_csv("C:/Users/zzhao/Desktop/global suicide/data/country.csv") %>% 
+  janitor::clean_names()
+
+regions <- read_csv("C:/Users/zzhao/Desktop/global suicide/data/regions.csv") %>% 
+  janitor::clean_names()
+
+super_regions <- 
+  read_csv("C:/Users/zzhao/Desktop/global suicide/data/super_regions.csv") %>% 
+  janitor::clean_names()
+
+```
+
+# 
+
+
+
