@@ -296,9 +296,42 @@ country_gender_specific_dth_rate <- country_gender_specific_dth_rate %>%
 ##########################################################
 
 # all age and all gender death rate
-country
+country_all_age_gender_dth_rate <- country %>% 
+  select(-cause) %>% 
+  filter(measure=="Deaths" & sex=="Both") %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>% 
+  mutate(total_pop = val_Deaths_Number * 100000 / (val_Deaths_Rate / 100000)) %>% 
+  group_by(location,year,sex) %>% 
+  summarize(total_dth_num = sum(val_Deaths_Number),
+            total_pop_num = sum(total_pop)) %>% 
+  mutate(deaths_rate = (total_dth_num * 100000 / total_pop_num) * 100000) %>% 
+  select(-c(total_dth_num,total_pop_num)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "deaths_rate")
+
+# change column names  
+colnames(country_all_age_gender_dth_rate)[2:29] <- 
+  paste0("val_",colnames(country_all_age_gender_dth_rate)[2:29],
+         "_all_age_deaths_rate")
+
+country_all_age_gender_dth_rate <- country_all_age_gender_dth_rate %>% 
+  janitor::clean_names()
 
 
 ```
+
+We will use the death rate of subjects with 10-59 years and 60+ years we calculated above to calculate the rate ratio of those two age groups.
+
+```{r dth_rate_ratio}
+
+
+
+
+```
+
+
+
 
 
