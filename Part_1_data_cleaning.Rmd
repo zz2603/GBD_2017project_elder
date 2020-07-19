@@ -39,6 +39,8 @@ super_regions <-
 
 ## Deaths
 
+### Number 
+
 We tried to separate the table of death number into a few parts: gender-specific, age-specific, age-gender-specific, total age and gender death number. 
 
 We created a new age group variable for subjects with 10-59 and 60+ years old.   
@@ -169,6 +171,8 @@ country_all_age_gender_dth_num <- country_all_age_gender_dth_num %>%
   janitor::clean_names()
 
 ```
+
+### Rate
 
 We will do same thing on the suicide rate.
 
@@ -322,6 +326,8 @@ country_all_age_gender_dth_rate <- country_all_age_gender_dth_rate %>%
 
 ```
 
+### Rate Ratio
+
 We will use the death rate of subjects with 10-59 years and 60+ years we calculated above to calculate the rate ratio of those two age groups.
 
 ```{r dth_rate_ratio}
@@ -397,6 +403,8 @@ country_gender_specific_dth_rate_ratio <- country_gender_specific_dth_rate_ratio
 
 ```
 
+### Age-standardized rate (ratio)
+
 Calculate the age-standardized suicide rate for those not "age-specific" variable.
 
 We create a new variable for standard population weight
@@ -456,7 +464,8 @@ colnames(country_age_gender_specific_std_dth_rate)[2:113] <-
   paste0("val_",colnames(country_age_gender_specific_std_dth_rate)[2:113],
          "_std_dth_rate") 
 
-country_age_gender_specific_std_dth_rate <- country_age_gender_specific_std_dth_rate %>% 
+country_age_gender_specific_std_dth_rate <- 
+  country_age_gender_specific_std_dth_rate %>% 
   janitor::clean_names()
 
 ################################################################
@@ -510,7 +519,7 @@ country_all_gender_std_dth_rate <- country_all_gender_std_dth_rate %>%
 ##########################################################
 
 # age-standardized, gender-specific death rate ratio 
-country_gender_specific_std_dth_rate_ratio <- country %>% 
+country_gender_specific_std_dth_rratio <- country %>% 
   filter(measure=="Deaths" & sex %in% c("Female","Male")) %>% 
   select(-cause) %>% 
   pivot_wider(names_from = c("measure","metric"),
@@ -534,12 +543,12 @@ country_gender_specific_std_dth_rate_ratio <- country %>%
               values_from = "std_dth_rratio")
 
 # change the column names
-colnames(country_gender_specific_std_dth_rate_ratio)[2:57] <- 
-  paste0("val_",colnames(country_gender_specific_std_dth_rate_ratio)[2:57],
+colnames(country_gender_specific_std_dth_rratio)[2:57] <- 
+  paste0("val_",colnames(country_gender_specific_std_dth_rratio)[2:57],
          "_std_dth_rate_ratio")
 
-country_gender_specific_std_dth_rate_ratio <- 
-  country_gender_specific_std_dth_rate_ratio %>% janitor::clean_names() 
+country_gender_specific_std_dth_rratio <- 
+  country_gender_specific_std_dth_rratio %>% janitor::clean_names() 
 
 ###############################################################
 
@@ -580,6 +589,8 @@ country_all_gender_std_dth_rratio <- country_all_gender_std_dth_rratio %>%
 ## YLLs
 
 The steps on YLL is very similar to the deaths. 
+
+### Number
 
 We first start with YLLs number.
 
@@ -718,9 +729,11 @@ country_all_age_gender_yll_num <- country_all_age_gender_yll_num %>%
 
 ```
 
+### Rate
+
 The steps of cleaning for YLLs rate is similar with steps of cleaning death rate.
 
-```{r YLLrate}
+```{r YLLs_rate}
 # age-specific YLLs rate
 country_age_specific_yll_rate <- country %>% 
   filter(measure=="YLLs (Years of Life Lost)" & sex=="Both" & metric=="Rate") %>% 
@@ -868,6 +881,8 @@ country_all_age_gender_yll_rate <- country_all_age_gender_yll_rate %>%
 
 ```
 
+### Rate Ratio
+
 Calculate the rate ratio between age group 10-59 and 60 plus.
 
 ```{r YLLrateratio}
@@ -940,6 +955,8 @@ country_all_gender_yll_rate_ratio <- country_all_gender_yll_rate_ratio %>%
 
 
 ```
+
+### Age-standardized rate (ratio)
 
 The steps of calculating the age-standardized rate of YLLs are similar to steps of getting age standardized death rate.
 
@@ -1134,6 +1151,8 @@ All steps in super regions part are the same as steps in countries. All we need 
 
 ## Deaths
 
+### Number
+
 ```{r SRdeathnum}
 # age-specific death number
 sprgn_age_specific_dth_num <- super_regions %>% 
@@ -1178,7 +1197,7 @@ sprgn_age_specific_dth_num <-
 ########################################################
 
 # age-gender-specific death number
-country_age_gender_specific_dth_num <- country %>% 
+sprgn_age_gender_specific_dth_num <- super_regions %>% 
   select(-cause) %>% 
   filter(measure=="Deaths" & metric=="Number" & sex %in% c("Male","Female")) %>%
   pivot_wider(names_from = c("year","sex","age","measure","metric"),
@@ -1187,7 +1206,7 @@ country_age_gender_specific_dth_num <- country %>%
   janitor::clean_names()
 
 # create a tbl for 10-59 and 60+
-country_age_gender_specific_dth_num_elder <- country %>% 
+sprgn_age_gender_specific_dth_num_elder <- super_regions %>% 
   select(-cause) %>% 
   filter(measure=="Deaths" & metric=="Number" & sex %in% c("Male","Female")) %>% 
   mutate(age_elder = if_else(age %in% c("10 to 14",
@@ -1204,28 +1223,27 @@ country_age_gender_specific_dth_num_elder <- country %>%
   group_by(location,year,sex,age_elder) %>% 
   summarize(val=sum(val)) %>% 
   pivot_wider(names_from = c("year","sex","age_elder"),
-              values_from = "val") %>% 
-  arrange(location)
+              values_from = "val")
 
 # change column name
-colnames(country_age_gender_specific_dth_num_elder)[2:113] <- 
-  paste0("val_",colnames(country_age_gender_specific_dth_num_elder)[2:113],
-         "_deaths_name")
+colnames(sprgn_age_gender_specific_dth_num_elder)[2:113] <- 
+  paste0("val_",colnames(sprgn_age_gender_specific_dth_num_elder)[2:113],
+         "_deaths_number")
 
-country_age_gender_specific_dth_num_elder <- 
-  country_age_gender_specific_dth_num_elder %>% 
+sprgn_age_gender_specific_dth_num_elder <- 
+  sprgn_age_gender_specific_dth_num_elder %>% 
   janitor::clean_names()
 
 # bind two tbl together
-country_age_gender_specific_dth_num <- 
-  left_join(country_age_gender_specific_dth_num_elder,
-            country_age_gender_specific_dth_num,
+sprgn_age_gender_specific_dth_num <- 
+  left_join(sprgn_age_gender_specific_dth_num_elder,
+            sprgn_age_gender_specific_dth_num,
             by="location")
 
-###################################################
+#####################################################################
 
 # gender-specific death number
-country_gender_specific_dth_num <- country %>% 
+sprgn_gender_specific_dth_num <- super_regions %>% 
   filter(measure=="Deaths" & metric=="Number" & sex %in% c("Female","Male")) %>%
   group_by(location,year,sex) %>% 
   summarize(deaths_number=sum(val)) %>% 
@@ -1233,17 +1251,17 @@ country_gender_specific_dth_num <- country %>%
               values_from = "deaths_number")
 
 # change the column names
-colnames(country_gender_specific_dth_num)[2:57] <- 
-  paste0("val_",colnames(country_gender_specific_dth_num)[2:57],
+colnames(sprgn_gender_specific_dth_num)[2:57] <- 
+  paste0("val_",colnames(sprgn_gender_specific_dth_num)[2:57],
          "_all_age_deaths_number")
 
-country_gender_specific_dth_num <- country_gender_specific_dth_num %>% 
+sprgn_gender_specific_dth_num <- sprgn_gender_specific_dth_num %>% 
   janitor::clean_names()
 
 ########################################################
 
 # all gender and all age death number
-country_all_age_gender_dth_num <- country %>% 
+sprgn_all_age_gender_dth_num <- super_regions %>% 
   filter(measure=="Deaths" & metric=="Number" & sex=="Both") %>% 
   group_by(location,year,sex) %>% 
   summarize(deaths_number = sum(val)) %>% 
@@ -1251,14 +1269,2181 @@ country_all_age_gender_dth_num <- country %>%
               values_from = "deaths_number")
 
 # change the column names
-colnames(country_all_age_gender_dth_num)[2:29] <-
-  paste0("val_",colnames(country_all_age_gender_dth_num)[2:29],
+colnames(sprgn_all_age_gender_dth_num)[2:29] <-
+  paste0("val_",colnames(sprgn_all_age_gender_dth_num)[2:29],
          "_all_age_deaths_number")
 
-country_all_age_gender_dth_num <- country_all_age_gender_dth_num %>% 
+sprgn_all_age_gender_dth_num <- sprgn_all_age_gender_dth_num %>% 
   janitor::clean_names()
 
 ```
+
+### Rate
+
+```{r SRdthrate}
+# age-specific death rate 
+sprgn_age_specific_dth_rate <- super_regions %>% 
+  select(-cause) %>% 
+  filter(measure=="Deaths" & metric=="Rate" & sex=="Both") %>% 
+  pivot_wider(names_from = c("year","sex","age","measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>% 
+  janitor::clean_names()
+
+# create a tble for those with 10-59 and 60 plus years old
+sprgn_age_specific_dth_rate_elder <- super_regions %>% 
+  select(-cause) %>% 
+  filter(measure=="Deaths" & sex=="Both") %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>%
+  janitor::clean_names() %>% 
+  mutate(total_pop = val_deaths_number * 100000 / (val_deaths_rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(total_dth_num = sum(val_deaths_number),
+            total_pop_num = sum(total_pop)) %>% 
+  mutate(deaths_rate = (total_dth_num * 100000 / total_pop_num) * 100000) %>% 
+  select(-c(total_pop_num,total_dth_num)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "deaths_rate")
+
+# change the column names
+colnames(sprgn_age_specific_dth_rate_elder)[2:57] <- 
+  paste0("val_",colnames(sprgn_age_specific_dth_rate_elder)[2:57],"_deaths_rate")
+
+sprgn_age_specific_dth_rate_elder <- sprgn_age_specific_dth_rate_elder %>% 
+  janitor::clean_names() 
+
+# bind two tbl together
+sprgn_age_specific_dth_rate <- left_join(sprgn_age_specific_dth_rate_elder,
+                                         sprgn_age_specific_dth_rate,
+                                         by="location")
+
+###############################################################
+
+# age-gender specific death rate
+sprgn_age_gender_specific_dth_rate <- super_regions %>% 
+  select(-cause) %>% 
+  filter(measure=="Deaths" & metric=="Rate" & sex %in% c("Female","Male")) %>% 
+  pivot_wider(names_from = c("year","sex","age","measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>% 
+  janitor::clean_names()
+
+# create a tbl for those with 10-59 and 60+ years old
+sprgn_age_gender_specific_dth_rate_elder <- super_regions %>% 
+  select(-cause) %>% 
+  filter(measure=="Deaths" & sex %in% c("Female","Male")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>%
+  janitor::clean_names() %>% 
+  mutate(total_pop = val_deaths_number * 100000 / (val_deaths_rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(total_dth_num = sum(val_deaths_number),
+            total_pop_num = sum(total_pop)) %>% 
+  mutate(deaths_rate = (total_dth_num * 100000 / total_pop_num) * 100000) %>% 
+  select(-c(total_pop_num,total_dth_num)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "deaths_rate")
+
+# change the column names
+colnames(sprgn_age_gender_specific_dth_rate_elder)[2:113] <- 
+  paste0("val_",colnames(sprgn_age_gender_specific_dth_rate_elder)[2:113],
+         "_deaths_rate")
+
+sprgn_age_gender_specific_dth_rate_elder <- 
+  sprgn_age_gender_specific_dth_rate_elder %>% 
+  janitor::clean_names()
+
+# bind two tbl together
+sprgn_age_gender_specific_dth_rate <- 
+  left_join(sprgn_age_gender_specific_dth_rate_elder,
+            sprgn_age_gender_specific_dth_rate,
+            by="location")
+
+############################################################
+
+# gender-specific death rate
+sprgn_gender_specific_dth_rate <- super_regions %>% 
+  select(-cause) %>% 
+  filter(measure=="Deaths" & sex %in% c("Male", "Female")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_Deaths_Number * 100000 / (val_Deaths_Rate / 100000)) %>% 
+  group_by(location,year,sex) %>% 
+  summarize(total_dth_num = sum(val_Deaths_Number),
+            total_pop_num = sum(total_pop)) %>% 
+  mutate(deaths_rate = (total_dth_num * 100000 / total_pop_num) * 100000) %>% 
+  select(-c(total_dth_num,total_pop_num)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "deaths_rate")
+
+# change the column names
+colnames(sprgn_gender_specific_dth_rate)[2:57] <- 
+  paste0("val_",colnames(sprgn_gender_specific_dth_rate)[2:57],
+         "_all_age_deaths_rate")
+  
+sprgn_gender_specific_dth_rate <- sprgn_gender_specific_dth_rate %>% 
+  janitor::clean_names()
+
+##########################################################
+
+# all age and all gender death rate
+sprgn_all_age_gender_dth_rate <- super_regions %>% 
+  select(-cause) %>% 
+  filter(measure=="Deaths" & sex=="Both") %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>% 
+  mutate(total_pop = val_Deaths_Number * 100000 / (val_Deaths_Rate / 100000)) %>% 
+  group_by(location,year,sex) %>% 
+  summarize(total_dth_num = sum(val_Deaths_Number),
+            total_pop_num = sum(total_pop)) %>% 
+  mutate(deaths_rate = (total_dth_num * 100000 / total_pop_num) * 100000) %>% 
+  select(-c(total_dth_num,total_pop_num)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "deaths_rate")
+
+# change column names  
+colnames(sprgn_all_age_gender_dth_rate)[2:29] <- 
+  paste0("val_",colnames(sprgn_all_age_gender_dth_rate)[2:29],
+         "_all_age_deaths_rate")
+
+sprgn_all_age_gender_dth_rate <- sprgn_all_age_gender_dth_rate %>% 
+  janitor::clean_names()
+
+```
+
+### Rate Ratio
+
+```{r SRdth_rate_ratio}
+# all gender death rate ratio
+sprgn_all_gender_dth_rratio <- super_regions %>% 
+  select(-cause) %>% 
+  filter(measure=="Deaths" & sex=="Both") %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>%
+  janitor::clean_names() %>% 
+  mutate(total_pop = val_deaths_number * 100000 / (val_deaths_rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(total_dth_num = sum(val_deaths_number),
+            total_pop_num = sum(total_pop)) %>% 
+  mutate(deaths_rate = (total_dth_num * 100000 / total_pop_num) * 100000) %>% 
+  select(-c(total_pop_num,total_dth_num)) %>% 
+  pivot_wider(names_from = c("sex","age_elder"),
+              values_from = "deaths_rate") %>%
+  janitor::clean_names() %>% 
+  mutate(deaths_rate_ratio = both_60_plus / both_10_to_59) %>% 
+  select(-c(both_10_to_59,both_60_plus)) %>% 
+  pivot_wider(names_from = "year",
+              values_from = "deaths_rate_ratio")
+
+# change the column names
+colnames(sprgn_all_gender_dth_rratio)[2:29] <- 
+  paste0("val_",colnames(sprgn_all_gender_dth_rratio)[2:29],
+         "_both_deaths_rate_ratio")
+
+##########################################################
+
+# gender-specific deaths rate ratio
+sprgn_gender_specific_dth_rratio <- super_regions %>% 
+  select(-cause) %>% 
+  filter(measure=="Deaths" & sex %in% c("Female","Male")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>%
+  janitor::clean_names() %>% 
+  mutate(total_pop = val_deaths_number * 100000 / (val_deaths_rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(total_dth_num = sum(val_deaths_number),
+            total_pop_num = sum(total_pop)) %>% 
+  mutate(deaths_rate = (total_dth_num * 100000 / total_pop_num) * 100000) %>% 
+  select(-c(total_pop_num,total_dth_num)) %>% 
+  pivot_wider(names_from = "age_elder",
+              values_from = "deaths_rate") %>% 
+  mutate(deaths_rate_ratio = `60 plus` / `10 to 59`) %>% 
+  select(-c(`10 to 59`,`60 plus`)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "deaths_rate_ratio")
+
+# change the column names
+colnames(sprgn_gender_specific_dth_rratio)[2:57] <- 
+  paste0("val_",colnames(sprgn_gender_specific_dth_rratio)[2:57],
+         "_deaths_rate_ratio")
+
+sprgn_gender_specific_dth_rratio <- sprgn_gender_specific_dth_rratio %>% 
+  janitor::clean_names()
+
+```
+
+### Age-standardized rate (ratio)
+
+```{r SRdthrate_age_std}
+# as calculating age-specific dth rate, we calculate the age-standardized death rate for those with 10-59 and 60 plus years old
+sprgn_age_specific_std_dth_rate <- super_regions %>% 
+  filter(measure=="Deaths" & sex=="Both") %>% 
+  select(-cause) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_Deaths_Number * 100000 / (val_Deaths_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_dth_rate = sum(val_Deaths_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "std_dth_rate")
+  
+# change the column names
+colnames(sprgn_age_specific_std_dth_rate)[2:57] <- 
+  paste0("val_",colnames(sprgn_age_specific_std_dth_rate)[2:57],
+         "_std_deaths_rate")
+
+sprgn_age_specific_std_dth_rate <- sprgn_age_specific_std_dth_rate %>% 
+  janitor::clean_names()
+
+###############################################################
+
+# as calculating age-gender-specific dth rate, we calculate the age-standardized death rate for those with 10-59 and 60 plus years old for male and female
+sprgn_age_gender_specific_std_dth_rate <- super_regions %>% 
+  filter(measure=="Deaths" & sex %in% c("Female","Male")) %>% 
+  select(-cause) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_Deaths_Number * 100000 / (val_Deaths_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_dth_rate = sum(val_Deaths_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "std_dth_rate")
+
+colnames(sprgn_age_gender_specific_std_dth_rate)[2:113] <- 
+  paste0("val_",colnames(sprgn_age_gender_specific_std_dth_rate)[2:113],
+         "_std_dth_rate") 
+
+sprgn_age_gender_specific_std_dth_rate <- sprgn_age_gender_specific_std_dth_rate %>% 
+  janitor::clean_names()
+
+################################################################
+
+# age-standardized, gender-specific dth rate 
+sprgn_gender_specific_std_dth_rate <- super_regions %>% 
+  filter(measure=="Deaths" & sex %in% c("Female","Male")) %>% 
+  select(-cause) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_Deaths_Number * 100000 / (val_Deaths_Rate / 100000)) %>% 
+  group_by(location,year,sex) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_dth_rate = sum(val_Deaths_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "std_dth_rate")
+
+# change the column names
+colnames(sprgn_gender_specific_std_dth_rate)[2:57] <- 
+  paste0("val_",colnames(sprgn_gender_specific_std_dth_rate)[2:57],
+         "_std_dth_rate")
+
+sprgn_gender_specific_std_dth_rate <- sprgn_gender_specific_std_dth_rate %>% 
+  janitor::clean_names()
+
+############################################################
+
+# age-standardized, all gender death rate
+sprgn_all_gender_std_dth_rate <- super_regions %>% 
+  filter(measure=="Deaths" & sex=="Both") %>% 
+  select(-cause) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_Deaths_Number * 100000 / (val_Deaths_Rate / 100000)) %>% 
+  group_by(location,year,sex) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_dth_rate = sum(val_Deaths_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "std_dth_rate")
+
+# change the column names
+colnames(sprgn_all_gender_std_dth_rate)[2:29] <- 
+  paste0("val_",colnames(sprgn_all_gender_std_dth_rate)[2:29],
+         "_std_dth_rate")
+
+sprgn_all_gender_std_dth_rate <- sprgn_all_gender_std_dth_rate %>% 
+  janitor::clean_names()
+
+##########################################################
+
+# age-standardized, gender-specific death rate ratio 
+sprgn_gender_specific_std_dth_rratio <- super_regions %>% 
+  filter(measure=="Deaths" & sex %in% c("Female","Male")) %>% 
+  select(-cause) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_Deaths_Number * 100000 / (val_Deaths_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_dth_rate = sum(val_Deaths_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = "age_elder",
+              values_from = "std_dth_rate") %>% 
+  mutate(std_dth_rratio = `60 plus` / `10 to 59`) %>% 
+  select(-c(`10 to 59`,`60 plus`)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "std_dth_rratio")
+
+# change the column names
+colnames(sprgn_gender_specific_std_dth_rratio)[2:57] <- 
+  paste0("val_",colnames(sprgn_gender_specific_std_dth_rratio)[2:57],
+         "_std_dth_rate_ratio")
+
+sprgn_gender_specific_std_dth_rratio <- sprgn_gender_specific_std_dth_rratio %>% 
+  janitor::clean_names()
+
+###############################################################
+
+# age-standardized, all gender death rate ratio
+sprgn_all_gender_std_dth_rratio <- super_regions %>% 
+  filter(measure=="Deaths" & sex=="Both") %>% 
+  select(-cause) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_Deaths_Number * 100000 / (val_Deaths_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_dth_rate = sum(val_Deaths_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = "age_elder",
+              values_from = "std_dth_rate") %>% 
+  mutate(std_dth_rratio = `60 plus` / `10 to 59`) %>% 
+  select(-c(`10 to 59`,`60 plus`)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "std_dth_rratio")
+
+# change the column names
+colnames(sprgn_all_gender_std_dth_rratio)[2:29] <- 
+  paste0("val_",colnames(sprgn_all_gender_std_dth_rratio)[2:29],
+         "_std_dth_rate_ratio")
+
+sprgn_all_gender_std_dth_rratio <- sprgn_all_gender_std_dth_rratio %>% 
+  janitor::clean_names()
+
+```
+
+## YLLs
+
+### Number
+
+```{r SRYLLs_num}
+# age-specific YLL number
+sprgn_age_specific_yll_num <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both" & metric=="Number") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("year","sex","age","measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>% 
+  janitor::clean_names()
+
+sprgn_age_specific_yll_num_elder <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both" & metric=="Number") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(YLLs_num = sum(val_YLLs_Number)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "YLLs_num")
+
+# change the column names
+colnames(sprgn_age_specific_yll_num_elder)[2:57] <- 
+  paste0("val_",colnames(sprgn_age_specific_yll_num_elder)[2:57],"_YLLs_Number")
+
+sprgn_age_specific_yll_num_elder <- sprgn_age_specific_yll_num_elder %>% 
+  janitor::clean_names()
+
+# bind two tbl together
+sprgn_age_specific_yll_num <- left_join(sprgn_age_specific_yll_num_elder,
+                                        sprgn_age_specific_yll_num,
+                                        by="location")
+
+##################################################
+
+# age-gender-specific YLLs number
+sprgn_age_gender_specific_yll_num <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male") &
+           metric=="Number") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("year","sex","age","measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>% 
+  janitor::clean_names()
+
+sprgn_age_gender_specific_yll_num_elder <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male") &
+           metric=="Number") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs"),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(YLLs_Number = sum(val_YLLs_Number)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "YLLs_Number")
+
+# change the column names
+colnames(sprgn_age_gender_specific_yll_num_elder)[2:113] <- 
+  paste0("val_",colnames(sprgn_age_gender_specific_yll_num_elder)[2:113],
+         "_YLLs_Number")
+  
+sprgn_age_gender_specific_yll_num_elder <- 
+  sprgn_age_gender_specific_yll_num_elder %>% 
+  janitor::clean_names()
+
+# bind two tbl together
+sprgn_age_gender_specific_yll_num <- 
+  left_join(sprgn_age_gender_specific_yll_num_elder,
+            sprgn_age_gender_specific_yll_num,
+            by="location")
+
+########################################################
+
+# gender-specific YLLs number
+sprgn_gender_specific_yll_num <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male") &
+           metric=="Number") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  group_by(location,year,sex) %>% 
+  summarize(YLLs_Number = sum(val_YLLs_Number)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "YLLs_Number")
+
+# change the column names
+colnames(sprgn_gender_specific_yll_num)[2:57] <- 
+  paste0("val_",colnames(sprgn_gender_specific_yll_num)[2:57],
+         "_all_age_YLLs_Number")
+  
+sprgn_gender_specific_yll_num <- sprgn_gender_specific_yll_num %>% 
+  janitor::clean_names()
+
+###################################################
+
+# all gender and all age YLLs number (annually)
+sprgn_all_age_gender_yll_num <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both" &
+           metric=="Number") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  group_by(location,year,sex) %>% 
+  summarize(YLLs_Number = sum(val_YLLs_Number)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "YLLs_Number")
+
+# change the column names
+colnames(sprgn_all_age_gender_yll_num)[2:29] <- 
+  paste0("val_",colnames(sprgn_all_age_gender_yll_num)[2:29],
+         "_all_age_YLLs_Number")
+  
+sprgn_all_age_gender_yll_num <- sprgn_all_age_gender_yll_num %>% 
+  janitor::clean_names()
+
+```
+
+### Rate
+
+```{r SRYLLs_rate}
+# age-specific YLLs rate
+sprgn_age_specific_yll_rate <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both" & metric=="Rate") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("year","sex","age","measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>% 
+  janitor::clean_names()
+
+sprgn_age_specific_yll_rate_elder <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(sum_YLLs_number = sum(val_YLLs_Number),
+            total_pop = sum(total_pop)) %>% 
+  mutate(YLLs_rate = (sum_YLLs_number * 100000 / total_pop) * 100000) %>% 
+  select(-c(sum_YLLs_number,total_pop)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "YLLs_rate")
+  
+# change names of columns
+colnames(sprgn_age_specific_yll_rate_elder)[2:57] <- 
+  paste0("val_",colnames(sprgn_age_specific_yll_rate_elder)[2:57],
+         "_YLLs_rate")
+
+sprgn_age_specific_yll_rate_elder <- sprgn_age_specific_yll_rate_elder %>% 
+  janitor::clean_names()
+
+# bind two tbl together
+sprgn_age_specific_yll_rate <- left_join(sprgn_age_specific_yll_rate_elder,
+                                         sprgn_age_specific_yll_rate,
+                                         by="location")
+
+##############################################################
+
+# age-gender-specific YLLs rate
+sprgn_age_gender_specific_yll_rate <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male") & 
+           metric=="Rate") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("year","sex","age","measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>% 
+  janitor::clean_names()
+
+sprgn_age_gender_specific_yll_rate_elder <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male")) %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(sum_YLLs_number = sum(val_YLLs_Number),
+            total_pop = sum(total_pop)) %>% 
+  mutate(YLLs_rate = (sum_YLLs_number * 100000 / total_pop) * 100000) %>% 
+  select(-c(sum_YLLs_number,total_pop)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "YLLs_rate")
+
+# change the column names
+colnames(sprgn_age_gender_specific_yll_rate_elder)[2:113] <- 
+  paste0("val_",colnames(sprgn_age_gender_specific_yll_rate_elder)[2:113],
+         "_YLLs_Rate")
+
+sprgn_age_gender_specific_yll_rate_elder <- 
+  sprgn_age_gender_specific_yll_rate_elder %>% 
+  janitor::clean_names()
+
+# bind two tbl together
+sprgn_age_gender_specific_yll_rate <- 
+  left_join(sprgn_age_gender_specific_yll_rate_elder,
+            sprgn_age_gender_specific_yll_rate,
+            by="location")
+
+###############################################################
+
+# gender-specific YLLs rate
+sprgn_gender_specific_yll_rate <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male")) %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000)) %>% 
+  group_by(location,year,sex) %>% 
+  summarize(sum_YLLs_number = sum(val_YLLs_Number),
+            total_pop = sum(total_pop)) %>% 
+  mutate(val_YLLs_rate = (sum_YLLs_number * 100000 / total_pop) * 100000) %>% 
+  select(-c(sum_YLLs_number,total_pop)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "val_YLLs_rate")
+
+# change the column names
+colnames(sprgn_gender_specific_yll_rate)[2:57] <- 
+  paste0("val_",colnames(sprgn_gender_specific_yll_rate)[2:57],
+         "_all_age_YLLs_rate")
+
+sprgn_gender_specific_yll_rate <- sprgn_gender_specific_yll_rate %>% 
+  janitor::clean_names()
+
+##########################################################
+
+# all gender and all age YLLs rate (annually)
+sprgn_all_age_gender_yll_rate <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000)) %>% 
+  group_by(location,year,sex) %>% 
+  summarize(sum_YLLs_number = sum(val_YLLs_Number),
+            total_pop = sum(total_pop)) %>% 
+  mutate(val_YLLs_rate = (sum_YLLs_number*100000/total_pop)*100000) %>% 
+  select(-c(sum_YLLs_number,total_pop)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "val_YLLs_rate")
+
+# change the column names
+colnames(sprgn_all_age_gender_yll_rate)[2:29] <- 
+  paste0("val_",colnames(sprgn_all_age_gender_yll_rate)[2:29],
+         "_all_age_YLLs_rate")
+
+sprgn_all_age_gender_yll_rate <- sprgn_all_age_gender_yll_rate %>% 
+  janitor::clean_names()
+
+```
+
+### Rate Ratio
+
+```{r SRYLLs_rratio}
+# gender-specific rate ratio
+sprgn_gender_specific_yll_rratio <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male")) %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(sum_YLLs_number = sum(val_YLLs_Number),
+            total_pop = sum(total_pop)) %>% 
+  mutate(val_YLLs_rate = (sum_YLLs_number * 100000 / total_pop) * 100000) %>% 
+  select(-c(sum_YLLs_number,total_pop)) %>% 
+  pivot_wider(names_from = "age_elder",
+              values_from = "val_YLLs_rate") %>% 
+  mutate(val_YLLs_rratio = `60 plus` / `10 to 59`) %>% 
+  select(-c(`10 to 59`,`60 plus`)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "val_YLLs_rratio")
+
+# change the column names
+colnames(sprgn_gender_specific_yll_rratio)[2:57] <- 
+  paste0("val_",colnames(sprgn_gender_specific_yll_rratio)[2:57],
+         "_YLLs_rate_ratio")
+
+sprgn_gender_specific_yll_rratio <- sprgn_gender_specific_yll_rratio %>% 
+  janitor::clean_names()
+
+# all gender rate ratio
+sprgn_all_gender_yll_rratio <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(sum_YLLs_number = sum(val_YLLs_Number),
+            total_pop = sum(total_pop)) %>% 
+  mutate(val_YLLs_rate = (sum_YLLs_number * 100000 / total_pop) * 100000) %>% 
+  select(-c(sum_YLLs_number,total_pop)) %>% 
+  pivot_wider(names_from = "age_elder",
+              values_from = "val_YLLs_rate") %>% 
+  mutate(val_YLLs_rratio = `60 plus` / `10 to 59`) %>% 
+  select(-c(`10 to 59`,`60 plus`)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "val_YLLs_rratio")
+
+colnames(sprgn_all_gender_yll_rratio)[2:29] <- 
+  paste0("val_",colnames(sprgn_all_gender_yll_rratio)[2:29],
+         "_YLLs_rate_ratio")
+
+sprgn_all_gender_yll_rratio <- sprgn_all_gender_yll_rratio %>% 
+  janitor::clean_names()
+
+```
+
+### Age-standardized rate (ratio)
+
+```{r SRYLLsrate_age_std}
+# as calculating the age-specific YLLs rate, we calculated the age-standardized rate of YLLs for those with 10-59 and 60 plus years old
+sprgn_age_specific_std_yll_rate <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both") %>% 
+  select(-cause) %>% 
+   mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_YLLs_rate = sum(val_YLLs_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "std_YLLs_rate")
+
+# change the column names
+colnames(sprgn_age_specific_std_yll_rate)[2:57] <- 
+  paste0("val_",colnames(sprgn_age_specific_std_yll_rate)[2:57],
+         "_std_YLLs_rate")
+
+sprgn_age_specific_std_yll_rate <- sprgn_age_specific_std_yll_rate %>% 
+  janitor::clean_names()
+
+#################################################################
+
+# as calculating the age-gender-specific YLLs rate, we calculate the age standardized rate of YLLs for those with 10-59 and 60 plus years old
+sprgn_age_gender_specific_std_yll_rate <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male")) %>% 
+  select(-cause) %>% 
+   mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_YLLs_rate = sum(val_YLLs_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "std_YLLs_rate")
+
+# change the column names
+colnames(sprgn_age_gender_specific_std_yll_rate)[2:113] <- 
+  paste0("val_",colnames(sprgn_age_gender_specific_std_yll_rate)[2:113],
+         "_std_YLLs_rate")
+  
+sprgn_age_gender_specific_std_yll_rate <- 
+  sprgn_age_gender_specific_std_yll_rate %>% 
+  janitor::clean_names()
+
+################################################################
+
+# age-standardized, gender-specific YLLs rate
+sprgn_gender_specific_std_yll_rate <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male")) %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000)) %>% 
+  group_by(location,year,sex) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_YLLs_rate = sum(val_YLLs_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "std_YLLs_rate")
+  
+# change the column names
+colnames(sprgn_gender_specific_std_yll_rate)[2:57] <- 
+  paste0("val_",colnames(sprgn_gender_specific_std_yll_rate)[2:57],
+         "_std_YLLs_rate")
+
+sprgn_gender_specific_std_yll_rate <- sprgn_gender_specific_std_yll_rate %>% 
+  janitor::clean_names()
+
+######################################################################
+
+# age-standardized, all gender YLLs rate
+sprgn_all_gender_std_yll_rate <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000)) %>% 
+  group_by(location,year,sex) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_YLLs_rate = sum(val_YLLs_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "std_YLLs_rate")
+
+# change the column names
+colnames(sprgn_all_gender_std_yll_rate)[2:29] <- 
+  paste0("val_",colnames(sprgn_all_gender_std_yll_rate)[2:29],
+         "_std_YLLs_rate")
+
+sprgn_all_gender_std_yll_rate <- sprgn_all_gender_std_yll_rate %>% 
+  janitor::clean_names()
+
+##################################################################
+
+# gender-specific, age-standardized rate ratio of YLLs for those with 60 plus and 10-59 years old
+sprgn_gender_specific_std_yll_rratio <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male")) %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_YLLs_rate = sum(val_YLLs_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = "age_elder",
+              values_from = "std_YLLs_rate") %>% 
+  mutate(std_YLLs_rratio = `60 plus` / `10 to 59`) %>% 
+  select(-c(`10 to 59`,`60 plus`)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "std_YLLs_rratio")
+
+# change the column names
+colnames(sprgn_gender_specific_std_yll_rratio)[2:57] <- 
+  paste0("val_",colnames(sprgn_gender_specific_std_yll_rratio)[2:57],
+         "_std_YLLs_rate_ratio")
+
+sprgn_gender_specific_std_yll_rratio <- 
+  sprgn_gender_specific_std_yll_rratio %>% 
+  janitor::clean_names()
+
+#######################################################################
+
+# all-gender, age-standardized rate ratio of YLLs 
+sprgn_all_gender_std_yll_rratio <- super_regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_YLLs_rate = sum(val_YLLs_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = "age_elder",
+              values_from = "std_YLLs_rate") %>% 
+  mutate(std_YLLs_rratio = `60 plus` / `10 to 59`) %>% 
+  select(-c(`10 to 59`,`60 plus`)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "std_YLLs_rratio")
+
+# change the column names
+colnames(sprgn_all_gender_std_yll_rratio)[2:29] <- 
+  paste0("val_",colnames(sprgn_all_gender_std_yll_rratio)[2:29],
+         "_std_YLLs_rate_ratio")
+
+sprgn_all_gender_std_yll_rratio <- sprgn_all_gender_std_yll_rratio %>% 
+  janitor::clean_names()
+
+```
+
+# Regions
+
+All steps are same as above.
+
+## Deaths
+
+### Number
+
+```{r Rdeathnum}
+# age-specific death number
+rgn_age_specific_dth_num <- regions %>% 
+  filter(measure=="Deaths" & metric=="Number" & sex=="Both") %>%
+  select(-cause) %>% 
+  pivot_wider(names_from = c("year","sex","age","measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>% 
+  janitor::clean_names()
+
+# create a tbl for 10-59 and 60 plus
+rgn_age_specific_dth_num_elder <- regions %>% 
+  mutate(age_elder = if_else(age %in% c("10 to 14",
+                                        "15 to 19",
+                                        "20 to 24",
+                                        "25 to 29",
+                                        "30 to 34",
+                                        "35 to 39",
+                                        "40 to 44",
+                                        "45 to 49",
+                                        "50 to 54",
+                                        "55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  filter(measure=="Deaths" & metric=="Number" & sex=="Both") %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(val=sum(val)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "val")
+
+# change the column name
+colnames(rgn_age_specific_dth_num_elder)[2:57] <- 
+  paste0("val_",colnames(rgn_age_specific_dth_num_elder)[2:57],"_deaths_number")
+
+rgn_age_specific_dth_num_elder <- rgn_age_specific_dth_num_elder %>% 
+  janitor::clean_names()
+
+# bind two tbl together
+rgn_age_specific_dth_num <- 
+  left_join(rgn_age_specific_dth_num_elder,rgn_age_specific_dth_num,
+            by="location")
+
+########################################################
+
+# age-gender-specific death number
+rgn_age_gender_specific_dth_num <- regions %>% 
+  select(-cause) %>% 
+  filter(measure=="Deaths" & metric=="Number" & sex %in% c("Male","Female")) %>%
+  pivot_wider(names_from = c("year","sex","age","measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>% 
+  janitor::clean_names()
+
+# create a tbl for 10-59 and 60+
+rgn_age_gender_specific_dth_num_elder <- regions %>% 
+  select(-cause) %>% 
+  filter(measure=="Deaths" & metric=="Number" & sex %in% c("Male","Female")) %>% 
+  mutate(age_elder = if_else(age %in% c("10 to 14",
+                                        "15 to 19",
+                                        "20 to 24",
+                                        "25 to 29",
+                                        "30 to 34",
+                                        "35 to 39",
+                                        "40 to 44",
+                                        "45 to 49",
+                                        "50 to 54",
+                                        "55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(val=sum(val)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "val")
+
+# change column name
+colnames(rgn_age_gender_specific_dth_num_elder)[2:113] <- 
+  paste0("val_",colnames(rgn_age_gender_specific_dth_num_elder)[2:113],
+         "_deaths_number")
+
+rgn_age_gender_specific_dth_num_elder <- 
+  rgn_age_gender_specific_dth_num_elder %>% 
+  janitor::clean_names()
+
+# bind two tbl together
+rgn_age_gender_specific_dth_num <- 
+  left_join(rgn_age_gender_specific_dth_num_elder,
+            rgn_age_gender_specific_dth_num,
+            by="location")
+
+#####################################################################
+
+# gender-specific death number
+rgn_gender_specific_dth_num <- regions %>% 
+  filter(measure=="Deaths" & metric=="Number" & sex %in% c("Female","Male")) %>%
+  group_by(location,year,sex) %>% 
+  summarize(deaths_number=sum(val)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "deaths_number")
+
+# change the column names
+colnames(rgn_gender_specific_dth_num)[2:57] <- 
+  paste0("val_",colnames(rgn_gender_specific_dth_num)[2:57],
+         "_all_age_deaths_number")
+
+rgn_gender_specific_dth_num <- rgn_gender_specific_dth_num %>% 
+  janitor::clean_names()
+
+########################################################
+
+# all gender and all age death number
+rgn_all_age_gender_dth_num <- regions %>% 
+  filter(measure=="Deaths" & metric=="Number" & sex=="Both") %>% 
+  group_by(location,year,sex) %>% 
+  summarize(deaths_number = sum(val)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "deaths_number")
+
+# change the column names
+colnames(rgn_all_age_gender_dth_num)[2:29] <-
+  paste0("val_",colnames(rgn_all_age_gender_dth_num)[2:29],
+         "_all_age_deaths_number")
+
+rgn_all_age_gender_dth_num <- rgn_all_age_gender_dth_num %>% 
+  janitor::clean_names()
+
+```
+
+### Rate
+
+```{r Rdthrate}
+# age-specific death rate 
+rgn_age_specific_dth_rate <- regions %>% 
+  select(-cause) %>% 
+  filter(measure=="Deaths" & metric=="Rate" & sex=="Both") %>% 
+  pivot_wider(names_from = c("year","sex","age","measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>% 
+  janitor::clean_names()
+
+# create a tble for those with 10-59 and 60 plus years old
+rgn_age_specific_dth_rate_elder <- regions %>% 
+  select(-cause) %>% 
+  filter(measure=="Deaths" & sex=="Both") %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>%
+  janitor::clean_names() %>% 
+  mutate(total_pop = val_deaths_number * 100000 / (val_deaths_rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(total_dth_num = sum(val_deaths_number),
+            total_pop_num = sum(total_pop)) %>% 
+  mutate(deaths_rate = (total_dth_num * 100000 / total_pop_num) * 100000) %>% 
+  select(-c(total_pop_num,total_dth_num)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "deaths_rate")
+
+# change the column names
+colnames(rgn_age_specific_dth_rate_elder)[2:57] <- 
+  paste0("val_",colnames(rgn_age_specific_dth_rate_elder)[2:57],"_deaths_rate")
+
+rgn_age_specific_dth_rate_elder <- rgn_age_specific_dth_rate_elder %>% 
+  janitor::clean_names() 
+
+# bind two tbl together
+rgn_age_specific_dth_rate <- left_join(rgn_age_specific_dth_rate_elder,
+                                       rgn_age_specific_dth_rate,
+                                       by="location")
+
+###############################################################
+
+# age-gender specific death rate
+rgn_age_gender_specific_dth_rate <- regions %>% 
+  select(-cause) %>% 
+  filter(measure=="Deaths" & metric=="Rate" & sex %in% c("Female","Male")) %>% 
+  pivot_wider(names_from = c("year","sex","age","measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>% 
+  janitor::clean_names()
+
+# create a tbl for those with 10-59 and 60+ years old
+rgn_age_gender_specific_dth_rate_elder <- regions %>% 
+  select(-cause) %>% 
+  filter(measure=="Deaths" & sex %in% c("Female","Male")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>%
+  janitor::clean_names() %>% 
+  mutate(total_pop = val_deaths_number * 100000 / (val_deaths_rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(total_dth_num = sum(val_deaths_number),
+            total_pop_num = sum(total_pop)) %>% 
+  mutate(deaths_rate = (total_dth_num * 100000 / total_pop_num) * 100000) %>% 
+  select(-c(total_pop_num,total_dth_num)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "deaths_rate")
+
+# change the column names
+colnames(rgn_age_gender_specific_dth_rate_elder)[2:113] <- 
+  paste0("val_",colnames(rgn_age_gender_specific_dth_rate_elder)[2:113],
+         "_deaths_rate")
+
+rgn_age_gender_specific_dth_rate_elder <- 
+  rgn_age_gender_specific_dth_rate_elder %>% 
+  janitor::clean_names()
+
+# bind two tbl together
+rgn_age_gender_specific_dth_rate <- 
+  left_join(rgn_age_gender_specific_dth_rate_elder,
+            rgn_age_gender_specific_dth_rate,
+            by="location")
+
+############################################################
+
+# gender-specific death rate
+rgn_gender_specific_dth_rate <- regions %>% 
+  select(-cause) %>% 
+  filter(measure=="Deaths" & sex %in% c("Male", "Female")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_Deaths_Number * 100000 / (val_Deaths_Rate / 100000)) %>% 
+  group_by(location,year,sex) %>% 
+  summarize(total_dth_num = sum(val_Deaths_Number),
+            total_pop_num = sum(total_pop)) %>% 
+  mutate(deaths_rate = (total_dth_num * 100000 / total_pop_num) * 100000) %>% 
+  select(-c(total_dth_num,total_pop_num)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "deaths_rate")
+
+# change the column names
+colnames(rgn_gender_specific_dth_rate)[2:57] <- 
+  paste0("val_",colnames(rgn_gender_specific_dth_rate)[2:57],
+         "_all_age_deaths_rate")
+  
+rgn_gender_specific_dth_rate <- rgn_gender_specific_dth_rate %>% 
+  janitor::clean_names()
+
+##########################################################
+
+# all age and all gender death rate
+rgn_all_age_gender_dth_rate <- regions %>% 
+  select(-cause) %>% 
+  filter(measure=="Deaths" & sex=="Both") %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>% 
+  mutate(total_pop = val_Deaths_Number * 100000 / (val_Deaths_Rate / 100000)) %>% 
+  group_by(location,year,sex) %>% 
+  summarize(total_dth_num = sum(val_Deaths_Number),
+            total_pop_num = sum(total_pop)) %>% 
+  mutate(deaths_rate = (total_dth_num * 100000 / total_pop_num) * 100000) %>% 
+  select(-c(total_dth_num,total_pop_num)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "deaths_rate")
+
+# change column names  
+colnames(rgn_all_age_gender_dth_rate)[2:29] <- 
+  paste0("val_",colnames(rgn_all_age_gender_dth_rate)[2:29],
+         "_all_age_deaths_rate")
+
+rgn_all_age_gender_dth_rate <- rgn_all_age_gender_dth_rate %>% 
+  janitor::clean_names()
+
+```
+
+### Rate Ratio
+
+```{r Rdth_rratio}
+# all gender death rate ratio
+rgn_all_gender_dth_rratio <- regions %>% 
+  select(-cause) %>% 
+  filter(measure=="Deaths" & sex=="Both") %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>%
+  janitor::clean_names() %>% 
+  mutate(total_pop = val_deaths_number * 100000 / (val_deaths_rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(total_dth_num = sum(val_deaths_number),
+            total_pop_num = sum(total_pop)) %>% 
+  mutate(deaths_rate = (total_dth_num * 100000 / total_pop_num) * 100000) %>% 
+  select(-c(total_pop_num,total_dth_num)) %>% 
+  pivot_wider(names_from = c("sex","age_elder"),
+              values_from = "deaths_rate") %>%
+  janitor::clean_names() %>% 
+  mutate(deaths_rate_ratio = both_60_plus / both_10_to_59) %>% 
+  select(-c(both_10_to_59,both_60_plus)) %>% 
+  pivot_wider(names_from = "year",
+              values_from = "deaths_rate_ratio")
+
+# change the column names
+colnames(rgn_all_gender_dth_rratio)[2:29] <- 
+  paste0("val_",colnames(rgn_all_gender_dth_rratio)[2:29],
+         "_both_deaths_rate_ratio")
+
+##########################################################
+
+# gender-specific deaths rate ratio
+rgn_gender_specific_dth_rratio <- regions %>% 
+  select(-cause) %>% 
+  filter(measure=="Deaths" & sex %in% c("Female","Male")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>%
+  janitor::clean_names() %>% 
+  mutate(total_pop = val_deaths_number * 100000 / (val_deaths_rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(total_dth_num = sum(val_deaths_number),
+            total_pop_num = sum(total_pop)) %>% 
+  mutate(deaths_rate = (total_dth_num * 100000 / total_pop_num) * 100000) %>% 
+  select(-c(total_pop_num,total_dth_num)) %>% 
+  pivot_wider(names_from = "age_elder",
+              values_from = "deaths_rate") %>% 
+  mutate(deaths_rate_ratio = `60 plus` / `10 to 59`) %>% 
+  select(-c(`10 to 59`,`60 plus`)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "deaths_rate_ratio")
+
+# change the column names
+colnames(rgn_gender_specific_dth_rratio)[2:57] <- 
+  paste0("val_",colnames(rgn_gender_specific_dth_rratio)[2:57],
+         "_deaths_rate_ratio")
+
+rgn_gender_specific_dth_rratio <- rgn_gender_specific_dth_rratio %>% 
+  janitor::clean_names()
+
+```
+
+### Age-standardized rate (ratio)
+
+```{r Rdthrate_age_std}
+# as calculating age-specific dth rate, we calculate the age-standardized death rate for those with 10-59 and 60 plus years old
+rgn_age_specific_std_dth_rate <- regions %>% 
+  filter(measure=="Deaths" & sex=="Both") %>% 
+  select(-cause) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_Deaths_Number * 100000 / (val_Deaths_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_dth_rate = sum(val_Deaths_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "std_dth_rate")
+  
+# change the column names
+colnames(rgn_age_specific_std_dth_rate)[2:57] <- 
+  paste0("val_",colnames(rgn_age_specific_std_dth_rate)[2:57],
+         "_std_deaths_rate")
+
+rgn_age_specific_std_dth_rate <- rgn_age_specific_std_dth_rate %>% 
+  janitor::clean_names()
+
+###############################################################
+
+# as calculating age-gender-specific dth rate, we calculate the age-standardized death rate for those with 10-59 and 60 plus years old for male and female
+rgn_age_gender_specific_std_dth_rate <- regions %>% 
+  filter(measure=="Deaths" & sex %in% c("Female","Male")) %>% 
+  select(-cause) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_Deaths_Number * 100000 / (val_Deaths_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_dth_rate = sum(val_Deaths_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "std_dth_rate")
+
+colnames(rgn_age_gender_specific_std_dth_rate)[2:113] <- 
+  paste0("val_",colnames(rgn_age_gender_specific_std_dth_rate)[2:113],
+         "_std_dth_rate") 
+
+rgn_age_gender_specific_std_dth_rate <- rgn_age_gender_specific_std_dth_rate %>% 
+  janitor::clean_names()
+
+################################################################
+
+# age-standardized, gender-specific dth rate 
+rgn_gender_specific_std_dth_rate <- regions %>% 
+  filter(measure=="Deaths" & sex %in% c("Female","Male")) %>% 
+  select(-cause) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_Deaths_Number * 100000 / (val_Deaths_Rate / 100000)) %>% 
+  group_by(location,year,sex) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_dth_rate = sum(val_Deaths_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "std_dth_rate")
+
+# change the column names
+colnames(rgn_gender_specific_std_dth_rate)[2:57] <- 
+  paste0("val_",colnames(rgn_gender_specific_std_dth_rate)[2:57],
+         "_std_dth_rate")
+
+rgn_gender_specific_std_dth_rate <- rgn_gender_specific_std_dth_rate %>% 
+  janitor::clean_names()
+
+############################################################
+
+# age-standardized, all gender death rate
+rgn_all_gender_std_dth_rate <- regions %>% 
+  filter(measure=="Deaths" & sex=="Both") %>% 
+  select(-cause) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_Deaths_Number * 100000 / (val_Deaths_Rate / 100000)) %>% 
+  group_by(location,year,sex) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_dth_rate = sum(val_Deaths_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "std_dth_rate")
+
+# change the column names
+colnames(rgn_all_gender_std_dth_rate)[2:29] <- 
+  paste0("val_",colnames(rgn_all_gender_std_dth_rate)[2:29],
+         "_std_dth_rate")
+
+rgn_all_gender_std_dth_rate <- rgn_all_gender_std_dth_rate %>% 
+  janitor::clean_names()
+
+##########################################################
+
+# age-standardized, gender-specific death rate ratio 
+rgn_gender_specific_std_dth_rratio <- regions %>% 
+  filter(measure=="Deaths" & sex %in% c("Female","Male")) %>% 
+  select(-cause) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_Deaths_Number * 100000 / (val_Deaths_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_dth_rate = sum(val_Deaths_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = "age_elder",
+              values_from = "std_dth_rate") %>% 
+  mutate(std_dth_rratio = `60 plus` / `10 to 59`) %>% 
+  select(-c(`10 to 59`,`60 plus`)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "std_dth_rratio")
+
+# change the column names
+colnames(rgn_gender_specific_std_dth_rratio)[2:57] <- 
+  paste0("val_",colnames(rgn_gender_specific_std_dth_rratio)[2:57],
+         "_std_dth_rate_ratio")
+
+rgn_gender_specific_std_dth_rratio <- rgn_gender_specific_std_dth_rratio %>% 
+  janitor::clean_names()
+
+###############################################################
+
+# age-standardized, all gender death rate ratio
+rgn_all_gender_std_dth_rratio <- regions %>% 
+  filter(measure=="Deaths" & sex=="Both") %>% 
+  select(-cause) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_Deaths_Number * 100000 / (val_Deaths_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_dth_rate = sum(val_Deaths_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = "age_elder",
+              values_from = "std_dth_rate") %>% 
+  mutate(std_dth_rratio = `60 plus` / `10 to 59`) %>% 
+  select(-c(`10 to 59`,`60 plus`)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "std_dth_rratio")
+
+# change the column names
+colnames(rgn_all_gender_std_dth_rratio)[2:29] <- 
+  paste0("val_",colnames(rgn_all_gender_std_dth_rratio)[2:29],
+         "_std_dth_rate_ratio")
+
+rgn_all_gender_std_dth_rratio <- rgn_all_gender_std_dth_rratio %>% 
+  janitor::clean_names()
+
+```
+
+## YLLs
+
+### Number
+
+```{r RYLLs_num}
+# age-specific YLL number
+rgn_age_specific_yll_num <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both" & metric=="Number") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("year","sex","age","measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>% 
+  janitor::clean_names()
+
+rgn_age_specific_yll_num_elder <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both" & metric=="Number") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(YLLs_num = sum(val_YLLs_Number)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "YLLs_num")
+
+# change the column names
+colnames(rgn_age_specific_yll_num_elder)[2:57] <- 
+  paste0("val_",colnames(rgn_age_specific_yll_num_elder)[2:57],"_YLLs_Number")
+
+rgn_age_specific_yll_num_elder <- rgn_age_specific_yll_num_elder %>% 
+  janitor::clean_names()
+
+# bind two tbl together
+rgn_age_specific_yll_num <- left_join(rgn_age_specific_yll_num_elder,
+                                      rgn_age_specific_yll_num,
+                                      by="location")
+
+##################################################
+
+# age-gender-specific YLLs number
+rgn_age_gender_specific_yll_num <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male") &
+           metric=="Number") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("year","sex","age","measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>% 
+  janitor::clean_names()
+
+rgn_age_gender_specific_yll_num_elder <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male") &
+           metric=="Number") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs"),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(YLLs_Number = sum(val_YLLs_Number)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "YLLs_Number")
+
+# change the column names
+colnames(rgn_age_gender_specific_yll_num_elder)[2:113] <- 
+  paste0("val_",colnames(rgn_age_gender_specific_yll_num_elder)[2:113],
+         "_YLLs_Number")
+  
+rgn_age_gender_specific_yll_num_elder <- 
+  rgn_age_gender_specific_yll_num_elder %>% 
+  janitor::clean_names()
+
+# bind two tbl together
+rgn_age_gender_specific_yll_num <- 
+  left_join(rgn_age_gender_specific_yll_num_elder,
+            rgn_age_gender_specific_yll_num,
+            by="location")
+
+########################################################
+
+# gender-specific YLLs number
+rgn_gender_specific_yll_num <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male") &
+           metric=="Number") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  group_by(location,year,sex) %>% 
+  summarize(YLLs_Number = sum(val_YLLs_Number)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "YLLs_Number")
+
+# change the column names
+colnames(rgn_gender_specific_yll_num)[2:57] <- 
+  paste0("val_",colnames(rgn_gender_specific_yll_num)[2:57],
+         "_all_age_YLLs_Number")
+  
+rgn_gender_specific_yll_num <- rgn_gender_specific_yll_num %>% 
+  janitor::clean_names()
+
+###################################################
+
+# all gender and all age YLLs number (annually)
+rgn_all_age_gender_yll_num <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both" &
+           metric=="Number") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  group_by(location,year,sex) %>% 
+  summarize(YLLs_Number = sum(val_YLLs_Number)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "YLLs_Number")
+
+# change the column names
+colnames(rgn_all_age_gender_yll_num)[2:29] <- 
+  paste0("val_",colnames(rgn_all_age_gender_yll_num)[2:29],
+         "_all_age_YLLs_Number")
+  
+rgn_all_age_gender_yll_num <- rgn_all_age_gender_yll_num %>% 
+  janitor::clean_names()
+
+```
+
+### Rate
+
+```{r SRYLLs_rate}
+# age-specific YLLs rate
+rgn_age_specific_yll_rate <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both" & metric=="Rate") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("year","sex","age","measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>% 
+  janitor::clean_names()
+
+rgn_age_specific_yll_rate_elder <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(sum_YLLs_number = sum(val_YLLs_Number),
+            total_pop = sum(total_pop)) %>% 
+  mutate(YLLs_rate = (sum_YLLs_number * 100000 / total_pop) * 100000) %>% 
+  select(-c(sum_YLLs_number,total_pop)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "YLLs_rate")
+  
+# change names of columns
+colnames(rgn_age_specific_yll_rate_elder)[2:57] <- 
+  paste0("val_",colnames(rgn_age_specific_yll_rate_elder)[2:57],
+         "_YLLs_rate")
+
+rgn_age_specific_yll_rate_elder <- rgn_age_specific_yll_rate_elder %>% 
+  janitor::clean_names()
+
+# bind two tbl together
+rgn_age_specific_yll_rate <- left_join(rgn_age_specific_yll_rate_elder,
+                                       rgn_age_specific_yll_rate,
+                                       by="location")
+
+##############################################################
+
+# age-gender-specific YLLs rate
+rgn_age_gender_specific_yll_rate <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male") & 
+           metric=="Rate") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("year","sex","age","measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  arrange(location) %>% 
+  janitor::clean_names()
+
+rgn_age_gender_specific_yll_rate_elder <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male")) %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(sum_YLLs_number = sum(val_YLLs_Number),
+            total_pop = sum(total_pop)) %>% 
+  mutate(YLLs_rate = (sum_YLLs_number * 100000 / total_pop) * 100000) %>% 
+  select(-c(sum_YLLs_number,total_pop)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "YLLs_rate")
+
+# change the column names
+colnames(rgn_age_gender_specific_yll_rate_elder)[2:113] <- 
+  paste0("val_",colnames(rgn_age_gender_specific_yll_rate_elder)[2:113],
+         "_YLLs_Rate")
+
+rgn_age_gender_specific_yll_rate_elder <- 
+  rgn_age_gender_specific_yll_rate_elder %>% 
+  janitor::clean_names()
+
+# bind two tbl together
+rgn_age_gender_specific_yll_rate <- 
+  left_join(rgn_age_gender_specific_yll_rate_elder,
+            rgn_age_gender_specific_yll_rate,
+            by="location")
+
+###############################################################
+
+# gender-specific YLLs rate
+rgn_gender_specific_yll_rate <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male")) %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000)) %>% 
+  group_by(location,year,sex) %>% 
+  summarize(sum_YLLs_number = sum(val_YLLs_Number),
+            total_pop = sum(total_pop)) %>% 
+  mutate(val_YLLs_rate = (sum_YLLs_number * 100000 / total_pop) * 100000) %>% 
+  select(-c(sum_YLLs_number,total_pop)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "val_YLLs_rate")
+
+# change the column names
+colnames(rgn_gender_specific_yll_rate)[2:57] <- 
+  paste0("val_",colnames(rgn_gender_specific_yll_rate)[2:57],
+         "_all_age_YLLs_rate")
+
+rgn_gender_specific_yll_rate <- rgn_gender_specific_yll_rate %>% 
+  janitor::clean_names()
+
+##########################################################
+
+# all gender and all age YLLs rate (annually)
+rgn_all_age_gender_yll_rate <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000)) %>% 
+  group_by(location,year,sex) %>% 
+  summarize(sum_YLLs_number = sum(val_YLLs_Number),
+            total_pop = sum(total_pop)) %>% 
+  mutate(val_YLLs_rate = (sum_YLLs_number*100000/total_pop)*100000) %>% 
+  select(-c(sum_YLLs_number,total_pop)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "val_YLLs_rate")
+
+# change the column names
+colnames(rgn_all_age_gender_yll_rate)[2:29] <- 
+  paste0("val_",colnames(rgn_all_age_gender_yll_rate)[2:29],
+         "_all_age_YLLs_rate")
+
+rgn_all_age_gender_yll_rate <- rgn_all_age_gender_yll_rate %>% 
+  janitor::clean_names()
+
+```
+
+### Rate Ratio
+
+```{r RYLLs_rratio}
+# gender-specific rate ratio
+rgn_gender_specific_yll_rratio <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male")) %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(sum_YLLs_number = sum(val_YLLs_Number),
+            total_pop = sum(total_pop)) %>% 
+  mutate(val_YLLs_rate = (sum_YLLs_number * 100000 / total_pop) * 100000) %>% 
+  select(-c(sum_YLLs_number,total_pop)) %>% 
+  pivot_wider(names_from = "age_elder",
+              values_from = "val_YLLs_rate") %>% 
+  mutate(val_YLLs_rratio = `60 plus` / `10 to 59`) %>% 
+  select(-c(`10 to 59`,`60 plus`)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "val_YLLs_rratio")
+
+# change the column names
+colnames(rgn_gender_specific_yll_rratio)[2:57] <- 
+  paste0("val_",colnames(rgn_gender_specific_yll_rratio)[2:57],
+         "_YLLs_rate_ratio")
+
+rgn_gender_specific_yll_rratio <- rgn_gender_specific_yll_rratio %>% 
+  janitor::clean_names()
+
+# all gender rate ratio
+rgn_all_gender_yll_rratio <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  summarize(sum_YLLs_number = sum(val_YLLs_Number),
+            total_pop = sum(total_pop)) %>% 
+  mutate(val_YLLs_rate = (sum_YLLs_number * 100000 / total_pop) * 100000) %>% 
+  select(-c(sum_YLLs_number,total_pop)) %>% 
+  pivot_wider(names_from = "age_elder",
+              values_from = "val_YLLs_rate") %>% 
+  mutate(val_YLLs_rratio = `60 plus` / `10 to 59`) %>% 
+  select(-c(`10 to 59`,`60 plus`)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "val_YLLs_rratio")
+
+colnames(rgn_all_gender_yll_rratio)[2:29] <- 
+  paste0("val_",colnames(rgn_all_gender_yll_rratio)[2:29],
+         "_YLLs_rate_ratio")
+
+rgn_all_gender_yll_rratio <- rgn_all_gender_yll_rratio %>% 
+  janitor::clean_names()
+
+```
+
+### Age-standardized rate (ratio)
+
+```{r RYLLsrate_age_std}
+# as calculating the age-specific YLLs rate, we calculated the age-standardized rate of YLLs for those with 10-59 and 60 plus years old
+rgn_age_specific_std_yll_rate <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both") %>% 
+  select(-cause) %>% 
+   mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_YLLs_rate = sum(val_YLLs_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "std_YLLs_rate")
+
+# change the column names
+colnames(rgn_age_specific_std_yll_rate)[2:57] <- 
+  paste0("val_",colnames(rgn_age_specific_std_yll_rate)[2:57],
+         "_std_YLLs_rate")
+
+rgn_age_specific_std_yll_rate <- rgn_age_specific_std_yll_rate %>% 
+  janitor::clean_names()
+
+#################################################################
+
+# as calculating the age-gender-specific YLLs rate, we calculate the age standardized rate of YLLs for those with 10-59 and 60 plus years old
+rgn_age_gender_specific_std_yll_rate <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male")) %>% 
+  select(-cause) %>% 
+   mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_YLLs_rate = sum(val_YLLs_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = c("year","sex","age_elder"),
+              values_from = "std_YLLs_rate")
+
+# change the column names
+colnames(rgn_age_gender_specific_std_yll_rate)[2:113] <- 
+  paste0("val_",colnames(rgn_age_gender_specific_std_yll_rate)[2:113],
+         "_std_YLLs_rate")
+  
+rgn_age_gender_specific_std_yll_rate <- 
+  rgn_age_gender_specific_std_yll_rate %>% 
+  janitor::clean_names()
+
+################################################################
+
+# age-standardized, gender-specific YLLs rate
+rgn_gender_specific_std_yll_rate <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male")) %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000)) %>% 
+  group_by(location,year,sex) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_YLLs_rate = sum(val_YLLs_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "std_YLLs_rate")
+  
+# change the column names
+colnames(rgn_gender_specific_std_yll_rate)[2:57] <- 
+  paste0("val_",colnames(rgn_gender_specific_std_yll_rate)[2:57],
+         "_std_YLLs_rate")
+
+rgn_gender_specific_std_yll_rate <- rgn_gender_specific_std_yll_rate %>% 
+  janitor::clean_names()
+
+######################################################################
+
+# age-standardized, all gender YLLs rate
+rgn_all_gender_std_yll_rate <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000)) %>% 
+  group_by(location,year,sex) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_YLLs_rate = sum(val_YLLs_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "std_YLLs_rate")
+
+# change the column names
+colnames(rgn_all_gender_std_yll_rate)[2:29] <- 
+  paste0("val_",colnames(rgn_all_gender_std_yll_rate)[2:29],
+         "_std_YLLs_rate")
+
+rgn_all_gender_std_yll_rate <- rgn_all_gender_std_yll_rate %>% 
+  janitor::clean_names()
+
+##################################################################
+
+# gender-specific, age-standardized rate ratio of YLLs for those with 60 plus and 10-59 years old
+rgn_gender_specific_std_yll_rratio <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex %in% c("Female","Male")) %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_YLLs_rate = sum(val_YLLs_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = "age_elder",
+              values_from = "std_YLLs_rate") %>% 
+  mutate(std_YLLs_rratio = `60 plus` / `10 to 59`) %>% 
+  select(-c(`10 to 59`,`60 plus`)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "std_YLLs_rratio")
+
+# change the column names
+colnames(rgn_gender_specific_std_yll_rratio)[2:57] <- 
+  paste0("val_",colnames(rgn_gender_specific_std_yll_rratio)[2:57],
+         "_std_YLLs_rate_ratio")
+
+rgn_gender_specific_std_yll_rratio <- 
+  rgn_gender_specific_std_yll_rratio %>% 
+  janitor::clean_names()
+
+#######################################################################
+
+# all-gender, age-standardized rate ratio of YLLs 
+rgn_all_gender_std_yll_rratio <- regions %>% 
+  filter(measure=="YLLs (Years of Life Lost)" & sex=="Both") %>% 
+  select(-cause) %>% 
+  mutate(measure = recode(measure,"YLLs (Years of Life Lost)" = "YLLs")) %>% 
+  pivot_wider(names_from = c("measure","metric"),
+              values_from = c("val","upper","lower")) %>% 
+  mutate(total_pop = val_YLLs_Number * 100000 / (val_YLLs_Rate / 100000),
+         age_elder = if_else(age %in% c("10 to 14","15 to 19",
+                                        "20 to 24","25 to 29",
+                                        "30 to 34","35 to 39",
+                                        "40 to 44","45 to 49",
+                                        "50 to 54","55 to 59"),
+                                       "10 to 59","60 plus")) %>% 
+  group_by(location,year,sex,age_elder) %>% 
+  mutate(sum_age_grp_num = sum(total_pop),
+         std_prop_wt = total_pop / sum_age_grp_num) %>% 
+  summarize(std_YLLs_rate = sum(val_YLLs_Rate*std_prop_wt)) %>% 
+  pivot_wider(names_from = "age_elder",
+              values_from = "std_YLLs_rate") %>% 
+  mutate(std_YLLs_rratio = `60 plus` / `10 to 59`) %>% 
+  select(-c(`10 to 59`,`60 plus`)) %>% 
+  pivot_wider(names_from = c("year","sex"),
+              values_from = "std_YLLs_rratio")
+
+# change the column names
+colnames(rgn_all_gender_std_yll_rratio)[2:29] <- 
+  paste0("val_",colnames(rgn_all_gender_std_yll_rratio)[2:29],
+         "_std_YLLs_rate_ratio")
+
+rgn_all_gender_std_yll_rratio <- rgn_all_gender_std_yll_rratio %>% 
+  janitor::clean_names()
+
+```
+
+# Bind all tables together
+
+```{r bindtbl}
+# country
+country_dth <- bind_cols(country_all_age_gender_dth_num,
+                     country_gender_specific_dth_num[,-1],
+                     country_age_specific_dth_num[,-1],
+                     country_age_gender_specific_dth_num[,-1],
+                     country_all_age_gender_dth_rate[,-1],
+                     country_all_gender_std_dth_rate[,-1],
+                     country_gender_specific_dth_rate[,-1],
+                     country_gender_specific_std_dth_rate[,-1],
+                     country_age_specific_dth_rate[,-1],
+                     country_age_specific_std_dth_rate[,-1],
+                     country_age_gender_specific_dth_rate[,-1],
+                     country_age_gender_specific_std_dth_rate[,-1],
+                     country_all_gender_dth_rate_ratio[,-1],
+                     country_all_gender_std_dth_rratio[,-1],
+                     country_gender_specific_dth_rate_ratio[,-1],
+                     country_gender_specific_std_dth_rratio[,-1])
+
+country_ylls <- bind_cols(country_all_age_gender_yll_num,
+                          country_gender_specific_yll_num[,-1],
+                          country_age_specific_yll_num[,-1],
+                          country_age_gender_specific_yll_num[,-1],
+                          country_all_age_gender_yll_rate[,-1],
+                          country_all_gender_std_yll_rate[,-1],
+                          country_gender_specific_yll_rate[,-1],
+                          country_gender_specific_std_yll_rate[,-1],
+                          country_age_specific_yll_rate[,-1],
+                          country_age_specific_std_yll_rate[,-1],
+                          country_age_gender_specific_yll_rate[,-1],
+                          country_age_gender_specific_std_yll_rate[,-1],
+                          country_all_gender_yll_rate_ratio[,-1],
+                          country_all_gender_std_yll_rratio[,-1],
+                          country_gender_specific_yll_rate_ratio[,-1],
+                          country_gender_specific_std_yll_rratio[,-1])
+
+ctry_dth_ylls_tbl <- bind_cols(country_dth,country_ylls[,-1])
+
+# GBD regions
+rgn_dth <- bind_cols(rgn_all_age_gender_dth_num,
+                     rgn_gender_specific_dth_num[,-1],
+                     rgn_age_specific_dth_num[,-1],
+                     rgn_age_gender_specific_dth_num[,-1],
+                     rgn_all_age_gender_dth_rate[,-1],
+                     rgn_all_gender_std_dth_rate[,-1],
+                     rgn_gender_specific_dth_rate[,-1],
+                     rgn_gender_specific_std_dth_rate[,-1],
+                     rgn_age_specific_dth_rate[,-1],
+                     rgn_age_specific_std_dth_rate[,-1],
+                     rgn_age_gender_specific_dth_rate[,-1],
+                     rgn_age_gender_specific_std_dth_rate[,-1],
+                     rgn_all_gender_dth_rratio[,-1],
+                     rgn_all_gender_std_dth_rratio[,-1],
+                     rgn_gender_specific_dth_rratio[,-1],
+                     rgn_gender_specific_std_dth_rratio[,-1])
+
+rgn_ylls <- bind_cols(rgn_all_age_gender_yll_num,
+                      rgn_gender_specific_yll_num[,-1],
+                      rgn_age_specific_yll_num[,-1],
+                      rgn_age_gender_specific_yll_num[,-1],
+                      rgn_all_age_gender_yll_rate[,-1],
+                      rgn_all_gender_std_yll_rate[,-1],
+                      rgn_gender_specific_yll_rate[,-1],
+                      rgn_gender_specific_std_yll_rate[,-1],
+                      rgn_age_specific_yll_rate[,-1],
+                      rgn_age_specific_std_yll_rate[,-1],
+                      rgn_age_gender_specific_yll_rate[,-1],
+                      rgn_age_gender_specific_std_yll_rate[,-1],
+                      rgn_all_gender_yll_rratio[,-1],
+                      rgn_all_gender_std_yll_rratio[,-1],
+                      rgn_gender_specific_yll_rratio[,-1],
+                      rgn_gender_specific_std_yll_rratio[,-1])
+
+rgn_dth_ylls_tbl <- bind_cols(rgn_dth,rgn_ylls[,-1])
+
+# GBD super regions
+sprgn_dth <- bind_cols(sprgn_all_age_gender_dth_num,
+                     sprgn_gender_specific_dth_num[,-1],
+                     sprgn_age_specific_dth_num[,-1],
+                     sprgn_age_gender_specific_dth_num[,-1],
+                     sprgn_all_age_gender_dth_rate[,-1],
+                     sprgn_all_gender_std_dth_rate[,-1],
+                     sprgn_gender_specific_dth_rate[,-1],
+                     sprgn_gender_specific_std_dth_rate[,-1],
+                     sprgn_age_specific_dth_rate[,-1],
+                     sprgn_age_specific_std_dth_rate[,-1],
+                     sprgn_age_gender_specific_dth_rate[,-1],
+                     sprgn_age_gender_specific_std_dth_rate[,-1],
+                     sprgn_all_gender_dth_rratio[,-1],
+                     sprgn_all_gender_std_dth_rratio[,-1],
+                     sprgn_gender_specific_dth_rratio[,-1],
+                     sprgn_gender_specific_std_dth_rratio[,-1])
+
+sprgn_ylls <- bind_cols(sprgn_all_age_gender_yll_num,
+                      sprgn_gender_specific_yll_num[,-1],
+                      sprgn_age_specific_yll_num[,-1],
+                      sprgn_age_gender_specific_yll_num[,-1],
+                      sprgn_all_age_gender_yll_rate[,-1],
+                      sprgn_all_gender_std_yll_rate[,-1],
+                      sprgn_gender_specific_yll_rate[,-1],
+                      sprgn_gender_specific_std_yll_rate[,-1],
+                      sprgn_age_specific_yll_rate[,-1],
+                      sprgn_age_specific_std_yll_rate[,-1],
+                      sprgn_age_gender_specific_yll_rate[,-1],
+                      sprgn_age_gender_specific_std_yll_rate[,-1],
+                      sprgn_all_gender_yll_rratio[,-1],
+                      sprgn_all_gender_std_yll_rratio[,-1],
+                      sprgn_gender_specific_yll_rratio[,-1],
+                      sprgn_gender_specific_std_yll_rratio[,-1])
+
+sprgn_dth_ylls_tbl <- bind_cols(sprgn_dth,sprgn_ylls[,-1])
+
+# bind three tbls together
+dth_ylls_tbl <- bind_rows(ctry_dth_ylls_tbl,
+                          rgn_dth_ylls_tbl,
+                          sprgn_dth_ylls_tbl)
+
+gbl_dth_ylls_tbl <- dth_ylls_tbl %>% filter(location=="Global") %>% 
+  .[-c(2,3),]
+
+dth_ylls_tbl <- dth_ylls_tbl %>% filter(location!="Global")
+
+dth_ylls_tbl <- bind_rows(gbl_dth_ylls_tbl,dth_ylls_tbl)
+
+
+
+```
+
+
+
+
+
+
 
 
 
