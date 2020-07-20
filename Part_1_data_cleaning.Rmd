@@ -3435,7 +3435,7 @@ dth_ylls_tbl <- dth_ylls_tbl %>% filter(location!="Global")
 
 dth_ylls_tbl <- bind_rows(gbl_dth_ylls_tbl,dth_ylls_tbl)
 
-
+write.csv(dth_ylls_tbl,"All_locations_dth_YLLs_tbl.csv")
 
 ```
 
