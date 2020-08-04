@@ -1,0 +1,33 @@
+---
+title: "Part_2_creating_tables"
+author: "Ziyi Zhao"
+date: "8/4/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+
+```
+
+
+Follow the research proposals and create tables using the results from the part 1.
+
+# Table 1
+
+Total number of deaths, age-standardised mortality rate (ASMR) per 100 000 from elderly suicide in 1990 and 2017, and total percent change in ASMR from elderly suicide 1990 to 2017, and suicide age ratio in 2017 for all regions
+
+```{r table1}
+
+
+
+
+
+```
+
+
+
+
+
